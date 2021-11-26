@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.pdp.transfermoney.entity.Card;
+import uz.pdp.transfermoney.entity.Income;
 import uz.pdp.transfermoney.entity.Outcome;
 import uz.pdp.transfermoney.payload.OutcomeDto;
 import uz.pdp.transfermoney.repository.OutcomeRepository;
 import uz.pdp.transfermoney.service.CardService;
+import uz.pdp.transfermoney.service.IncomeService;
 import uz.pdp.transfermoney.service.OutcomeService;
+import uz.pdp.transfermoney.service.mapper.IncomeMapper;
 import uz.pdp.transfermoney.service.mapper.OutcomeMapper;
 
 import java.util.Optional;
@@ -26,6 +29,12 @@ public class OutcomeImplService implements OutcomeService {
     @Autowired
     CardService cardService;
 
+    @Autowired
+    IncomeService incomeService;
+
+    @Autowired
+    IncomeMapper incomeMapper;
+
     @Override
     public Optional<OutcomeDto> sendTo(OutcomeDto outcomeDto, Card fromCard, Card toCard) {
 
@@ -39,6 +48,10 @@ public class OutcomeImplService implements OutcomeService {
         outcome.setFromCard(fromCardSave);
         outcome.setToCard(toCardSave);
         outcome.setUserId(fromCard.getUserId());
+
+        Income income = incomeMapper.outcomeToIncome(outcome);
+
+        incomeService.save(income);
 
         return Optional.of(outcomeMapper.toDto(save(outcome)));
 
